@@ -1,0 +1,5 @@
+__pycache__/
+dataset/
+uploads/
+reinforcement_data/
+*.pyc
