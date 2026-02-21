@@ -3,15 +3,10 @@ import numpy as np
 from PIL import Image
 
 # -------- Model Config --------
-MODEL_PATH = "model.h5"
+MODEL_PATH = "model.keras"
 IMG_SIZE = 224
 
-# ✅ Load model in compatibility mode
-model = tf.keras.models.load_model(
-    MODEL_PATH,
-    compile=False
-)
-
+model = tf.keras.models.load_model(MODEL_PATH)
 print("✅ Model loaded successfully")
 
 
