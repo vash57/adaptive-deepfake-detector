@@ -2,11 +2,17 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 
-# -------- Model Load --------
+# -------- Model Config --------
 MODEL_PATH = "model.h5"
 IMG_SIZE = 224
 
-model = tf.keras.models.load_model(MODEL_PATH)
+# ✅ Load model in compatibility mode
+model = tf.keras.models.load_model(
+    MODEL_PATH,
+    compile=False
+)
+
+print("✅ Model loaded successfully")
 
 
 # -------- Prediction Function --------
@@ -23,13 +29,10 @@ def predict_image(image_path):
     # prediction
     pred = model.predict(img, verbose=0)[0][0]
 
-    # decision (IMPORTANT)
+    # decision
     if pred > 0.5:
         result = "Real Image"
     else:
         result = "AI Generated (Fake)"
 
-    # result + confidence return
     return result, float(pred)
-
-
