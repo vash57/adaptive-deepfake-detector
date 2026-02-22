@@ -1,36 +1,25 @@
-import tensorflow as tf
-import numpy as np
-from PIL import Image
 import os
+import shutil
 
-# -------- Model Config --------
-MODEL_PATH = os.path.join("backend", "model.keras")
-IMG_SIZE = 224
+UPLOAD_FOLDER = "uploads"
+RL_DATASET = "reinforcement_data"
 
-# -------- Load Model Once --------
-print("🔄 Loading Deepfake Model...")
-model = tf.keras.models.load_model(MODEL_PATH, compile=False)
-print("✅ Model loaded successfully")
+# create folders
+os.makedirs(os.path.join(RL_DATASET, "real"), exist_ok=True)
+os.makedirs(os.path.join(RL_DATASET, "fake"), exist_ok=True)
 
 
-# -------- Prediction Function --------
-def predict_image(image_path):
+def save_feedback(filename, label):
 
-    # image load
-    img = Image.open(image_path).convert("RGB")
-    img = img.resize((IMG_SIZE, IMG_SIZE))
+    src = os.path.join(UPLOAD_FOLDER, filename)
 
-    # preprocessing
-    img = np.array(img, dtype=np.float32) / 255.0
-    img = np.expand_dims(img, axis=0)
-
-    # prediction
-    pred = model.predict(img, verbose=0)[0][0]
-
-    # decision threshold
-    if pred > 0.5:
-        result = "Real Image"
+    if label == "real":
+        dst = os.path.join(RL_DATASET, "real", filename)
     else:
-        result = "AI Generated (Fake)"
+        dst = os.path.join(RL_DATASET, "fake", filename)
 
-    return result, float(pred)
+    if os.path.exists(src):
+        shutil.copy(src, dst)
+        print("✅ Feedback saved:", filename, "→", label)
+    else:
+        print("⚠️ File not found:", src)
