@@ -3,22 +3,29 @@ import subprocess
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-from model_utils import predict_image
-from reinforcement import save_feedback
+from backend.model_utils import predict_image
+from backend.reinforcement import save_feedback
 
 app = Flask(__name__)
 CORS(app)
 
 # -------- FOLDERS --------
-UPLOAD_FOLDER = "../uploads"
+UPLOAD_FOLDER = "uploads"   # IMPORTANT (no ../)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # -------- LEARNING COUNTER --------
-LEARN_COUNT_FILE = "learn_count.txt"
+LEARN_COUNT_FILE = "backend/learn_count.txt"
 
 if not os.path.exists(LEARN_COUNT_FILE):
     with open(LEARN_COUNT_FILE, "w") as f:
         f.write("0")
+
+
+# -------- HEALTH CHECK (VERY IMPORTANT FOR RENDER) --------
+@app.route("/")
+def home():
+    return {"status": "Deepfake Detector API Running ✅"}
+
 
 # -------- PREDICT API --------
 @app.route("/predict", methods=["POST"])
@@ -48,7 +55,6 @@ def feedback():
 
     save_feedback(filename, label)
 
-    # update learn counter
     with open(LEARN_COUNT_FILE, "r") as f:
         count = int(f.read())
 
@@ -71,10 +77,11 @@ def learn_count():
 # -------- AUTO RETRAIN --------
 @app.route("/retrain")
 def retrain():
-    subprocess.Popen(["python", "retrain_reinforcement.py"])
+    subprocess.Popen(["python", "backend/retrain_reinforcement.py"])
     return {"status": "training started"}
 
 
+# -------- RUN SERVER (LOCAL ONLY) --------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
