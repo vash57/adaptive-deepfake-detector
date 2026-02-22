@@ -750,7 +750,11 @@
                 body: formData
             });
 
-            const data = await response.json();
+            if (!response.ok) {
+    throw new Error("Server response not OK");
+}
+
+const data = await response.json();
 
             let confidence;
             if (data.result.includes("Real")) {
